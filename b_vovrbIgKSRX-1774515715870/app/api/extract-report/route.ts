@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 
 const execFileAsync = promisify(execFile);
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 function simulateExtraction(filename: string) {
-  // Smart simulation based on filename hints
   const name = filename.toLowerCase();
   return {
     N: Math.floor(Math.random() * 40) + 60,
@@ -28,13 +27,10 @@ function simulateExtraction(filename: string) {
   };
 }
 
-async function extractWithGemini(imageBase64: string, mimeType: string): Promise<any> {
-  if (!GEMINI_API_KEY) throw new Error('NO_KEY');
+async function extractWithOpenAI(imageBase64: string, mimeType: string): Promise<any> {
+  const client = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-  const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-  const prompt = `You are an expert agricultural analyst. Analyze this soil health report or farm document image and extract the following values. Return ONLY a valid JSON object — no markdown, no explanation, just raw JSON:
+  const prompt = `You are an expert agricultural analyst. Analyze this soil health report or farm document image and extract relevant values. Return ONLY a valid JSON object with these exact keys — no markdown, no explanation, just the raw JSON:
 
 {
   "N": <Nitrogen in kg/ha, number>,
@@ -45,18 +41,33 @@ async function extractWithGemini(imageBase64: string, mimeType: string): Promise
   "humidity": <Humidity %, number 0-100>,
   "rainfall": <Rainfall in mm, number>,
   "soil_moisture": <Soil moisture reading, number>,
-  "crop_days": <Days since sowing, number>,
-  "crop_type": <crop name lowercase: "wheat", "rice", "maize", "cotton", or "sugarcane">
+  "crop_days": <Days since sowing / crop age, number>,
+  "crop_type": <crop name lowercase: one of "wheat", "rice", "maize", "cotton", "sugarcane">
 }
 
-If a value is not visible in the document, use a sensible default. Return ONLY the JSON object.`;
+If a value is not visible in the document, use a sensible agricultural default. Return ONLY the JSON object.`;
 
-  const result = await model.generateContent([
-    prompt,
-    { inlineData: { data: imageBase64, mimeType } }
-  ]);
+  const response = await client.chat.completions.create({
+    model: 'gpt-4o',
+    max_tokens: 300,
+    messages: [
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: prompt },
+          {
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${imageBase64}`,
+              detail: 'high'
+            }
+          }
+        ]
+      }
+    ]
+  });
 
-  const text = result.response.text().trim();
+  const text = response.choices[0]?.message?.content?.trim() ?? '';
   const cleaned = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```$/i, '').trim();
   return JSON.parse(cleaned);
 }
@@ -80,35 +91,32 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString('base64');
-    const mimeType = file.type as 'image/jpeg' | 'image/png' | 'application/pdf';
+    const mimeType = (file.type || 'image/jpeg') as string;
 
     let extractedValues: any;
     let extractionNote: string;
 
-    // Try Gemini Vision AI first, gracefully fall back on any error
-    if (GEMINI_API_KEY) {
+    if (OPENAI_API_KEY) {
       try {
-        extractedValues = await extractWithGemini(base64, mimeType);
-        extractionNote = '✅ Extracted by Gemini Vision AI';
-      } catch (geminiError: any) {
-        const msg = geminiError?.message || '';
-        if (msg.includes('429') || msg.includes('quota') || msg.includes('Too Many Requests')) {
-          console.warn('Gemini quota exceeded — falling back to smart simulation');
-          extractionNote = '⚡ Vision AI quota reached — using smart estimation (values are approximate)';
-        } else if (msg.includes('NO_KEY')) {
-          extractionNote = '⚡ No Vision AI key — using smart estimation';
+        extractedValues = await extractWithOpenAI(base64, mimeType);
+        extractionNote = '✅ Extracted by GPT-4o Vision AI';
+      } catch (openaiError: any) {
+        const msg = openaiError?.message || '';
+        if (msg.includes('429') || msg.includes('quota') || msg.includes('insufficient_quota')) {
+          extractionNote = '⚡ OpenAI quota reached — using smart estimation';
+        } else if (msg.includes('401') || msg.includes('Incorrect API key')) {
+          extractionNote = '⚡ Invalid OpenAI API key — using smart estimation';
         } else {
-          console.error('Gemini error:', msg);
+          console.error('OpenAI error:', msg);
           extractionNote = '⚡ Vision AI unavailable — using smart estimation';
         }
         extractedValues = simulateExtraction(file.name);
       }
     } else {
       extractedValues = simulateExtraction(file.name);
-      extractionNote = '⚡ Add GEMINI_API_KEY to .env.local for real OCR extraction';
+      extractionNote = '⚡ Add OPENAI_API_KEY to .env.local for real GPT-4o Vision extraction';
     }
 
-    // Always run the ML prediction regardless of extraction method
     const prediction = await runMLPrediction(extractedValues);
 
     return NextResponse.json({

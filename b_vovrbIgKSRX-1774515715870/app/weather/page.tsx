@@ -30,24 +30,49 @@ export default function WeatherPage() {
     getUser()
   }, [supabase, router])
 
-  const handleGetWeather = () => {
-    if (!location.trim()) return
+  const [fetchingWeather, setFetchingWeather] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-    // Placeholder weather data
-    setWeather({
-      location: location,
-      temperature: 28,
-      humidity: 65,
-      rainfall: 0,
-      windSpeed: 12,
-      forecast: [
-        { day: 'Today', high: 28, low: 18, rainfall: 0 },
-        { day: 'Tomorrow', high: 26, low: 16, rainfall: 2 },
-        { day: 'Day 3', high: 24, low: 14, rainfall: 5 },
-        { day: 'Day 4', high: 22, low: 12, rainfall: 0 },
-        { day: 'Day 5', high: 25, low: 15, rainfall: 1 },
-      ]
-    })
+  const handleGetWeather = async () => {
+    if (!location.trim()) return
+    setFetchingWeather(true)
+    setError(null)
+    
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_WEATHER_API_KEY
+      if (!apiKey) {
+        throw new Error('Weather API key is missing. Please restart the dev server.')
+      }
+
+      // Fetch 5-day forecast from WeatherAPI
+      const res = await fetch(`https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${encodeURIComponent(location)}&days=5`)
+      
+      if (!res.ok) {
+        throw new Error('Failed to fetch weather data. Please check the location.')
+      }
+
+      const data = await res.json()
+      
+      setWeather({
+        location: `${data.location.name}, ${data.location.country}`,
+        temperature: data.current.temp_c,
+        humidity: data.current.humidity,
+        rainfall: data.current.precip_mm,
+        windSpeed: data.current.wind_kph,
+        conditionIcon: data.current.condition.icon,
+        forecast: data.forecast.forecastday.map((day: any, i: number) => ({
+          day: i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' }),
+          high: day.day.maxtemp_c,
+          low: day.day.mintemp_c,
+          rainfall: day.day.totalprecip_mm,
+          icon: day.day.condition.icon
+        }))
+      })
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setFetchingWeather(false)
+    }
   }
 
   if (loading) {
@@ -93,10 +118,11 @@ export default function WeatherPage() {
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleGetWeather()}
               />
-              <Button onClick={handleGetWeather} className="bg-blue-600 hover:bg-blue-700">
-                Get Weather
+              <Button onClick={handleGetWeather} className="bg-blue-600 hover:bg-blue-700" disabled={fetchingWeather}>
+                {fetchingWeather ? <Loader className="animate-spin" /> : 'Get Weather'}
               </Button>
             </div>
+            {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
           </CardContent>
         </Card>
 
@@ -105,7 +131,10 @@ export default function WeatherPage() {
             {/* Current Weather */}
             <Card>
               <CardHeader>
-                <CardTitle>Current Weather in {weather.location}</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <img src={weather.conditionIcon} alt="weather" className="w-8 h-8" />
+                  Current Weather in {weather.location}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -150,7 +179,8 @@ export default function WeatherPage() {
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                   {weather.forecast.map((day: any, idx: number) => (
                     <div key={idx} className="border rounded-lg p-4 text-center">
-                      <p className="font-semibold mb-3">{day.day}</p>
+                      <p className="font-semibold mb-1">{day.day}</p>
+                      <img src={day.icon} alt="condition" className="w-12 h-12 mx-auto mb-2" />
                       <div className="space-y-2">
                         <div>
                           <p className="text-xs text-gray-600">High</p>

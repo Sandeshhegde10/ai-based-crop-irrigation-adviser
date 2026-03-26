@@ -1,8 +1,8 @@
-import { createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const supabase = await createServerClient()
+  const supabase = await createClient()
   
   try {
     const { message, gardenId } = await req.json()
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient()
+  const supabase = await createClient()
   
   try {
     const { data: { user } } = await supabase.auth.getUser()

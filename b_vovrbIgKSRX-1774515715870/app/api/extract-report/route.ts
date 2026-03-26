@@ -12,7 +12,7 @@ async function extractWithGemini(imageBase64: string, mimeType: string): Promise
   if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
   
   const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
   const prompt = `You are an expert agricultural analyst. Analyze this soil health report or farm document image and extract the following values. Return ONLY a valid JSON object with these exact keys (use typical values if a field is not present):
 

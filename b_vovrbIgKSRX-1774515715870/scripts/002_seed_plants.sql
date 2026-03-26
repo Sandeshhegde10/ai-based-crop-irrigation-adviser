@@ -1,0 +1,22 @@
+-- Seed the plants table with common crops
+INSERT INTO public.plants (name, scientific_name, water_needs_ml_per_day, optimal_soil_moisture, growth_stage, description) VALUES
+('Wheat', 'Triticum aestivum', 2500, 60, 'grain', 'Cereal crop commonly grown for grain production'),
+('Maize', 'Zea mays', 5000, 65, 'grain', 'Corn crop with high water requirements during growing season'),
+('Rice', 'Oryza sativa', 8000, 80, 'grain', 'Staple crop requiring flooded field conditions'),
+('Tomato', 'Solanum lycopersicum', 3500, 70, 'fruiting', 'Vegetable with consistent watering needs'),
+('Potato', 'Solanum tuberosum', 4000, 75, 'tuber', 'Starchy root vegetable requiring moderate water'),
+('Cucumber', 'Cucumis sativus', 3000, 70, 'fruiting', 'Vegetable requiring consistent moisture'),
+('Lettuce', 'Lactuca sativa', 2000, 65, 'leafy', 'Leafy green with low water requirements'),
+('Carrot', 'Daucus carota', 2500, 60, 'root', 'Root vegetable requiring moderate moisture'),
+('Onion', 'Allium cepa', 2000, 55, 'bulb', 'Bulb crop with relatively low water needs'),
+('Bell Pepper', 'Capsicum annuum', 3500, 70, 'fruiting', 'Vegetable requiring warm conditions and steady water'),
+('Cabbage', 'Brassica oleracea', 3000, 65, 'leafy', 'Cruciferous vegetable with moderate water needs'),
+('Spinach', 'Spinacia oleracea', 1500, 60, 'leafy', 'Leafy green with minimal water requirements'),
+('Broccoli', 'Brassica oleracea italica', 3500, 70, 'flowering', 'Cruciferous vegetable requiring consistent water'),
+('Soybean', 'Glycine max', 4500, 70, 'legume', 'Legume crop with moderate-high water needs'),
+('Cotton', 'Gossypium hirsutum', 6000, 60, 'fiber', 'Fiber crop requiring deep watering'),
+('Sugarcane', 'Saccharum officinarum', 7000, 75, 'stalk', 'Industrial crop with high water requirements'),
+('Coffee', 'Coffea arabica', 3000, 65, 'berry', 'Tropical crop requiring consistent moisture'),
+('Apple', 'Malus domestica', 2500, 60, 'fruit', 'Deciduous fruit tree with moderate needs'),
+('Banana', 'Musa acuminata', 4500, 75, 'fruit', 'Tropical fruit requiring high moisture'),
+('Grape', 'Vitis vinifera', 2000, 55, 'fruit', 'Perennial fruit with drought tolerance');

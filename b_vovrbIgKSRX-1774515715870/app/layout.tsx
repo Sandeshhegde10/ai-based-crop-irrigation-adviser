@@ -7,7 +7,7 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'AquaAdvisor - Smart Irrigation Management',
+  title: 'AquaSync - Smart Irrigation Management',
   description: 'AI-powered irrigation advisory system for farmers and agricultural professionals. Optimize water usage, reduce costs, and increase crop yields.',
   generator: 'v0.app',
   icons: {
@@ -28,11 +28,13 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   openGraph: {
-    title: 'AquaAdvisor - Smart Irrigation Management',
+    title: 'AquaSync - Smart Irrigation Management',
     description: 'AI-powered irrigation management for modern farmers',
     type: 'website',
   },
 }
+
+import { ThemeProvider } from '@/components/theme-provider'
 
 export default function RootLayout({
   children,
@@ -40,10 +42,17 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
-        {children}
-        <Analytics />
+    <html lang="en" suppressHydrationWarning>
+      <body className="font-sans antialiased bg-background text-foreground transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   )

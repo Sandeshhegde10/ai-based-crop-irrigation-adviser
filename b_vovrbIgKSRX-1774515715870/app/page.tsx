@@ -119,30 +119,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Meet the Team / Portfolio */}
-      <section className="bg-white/50 dark:bg-slate-900/30 py-24 mb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-12">
-            Meet the Builders
-          </h3>
-          <div className="flex justify-center flex-wrap gap-8">
-            <div className="max-w-xs text-center border p-8 rounded-2xl bg-white dark:bg-slate-900 shadow-sm border-gray-200 dark:border-gray-800">
-              <div className="w-32 h-32 bg-gray-200 dark:bg-gray-800 rounded-full mx-auto mb-6 flex items-center justify-center overflow-hidden">
-                <img src={`https://api.dicebear.com/7.x/notionists/svg?seed=AquaSync1&backgroundColor=ffd5dc`} alt="Team Member 1" className="w-full h-full object-cover"/>
-              </div>
-              <h4 className="text-xl font-bold text-gray-900 dark:text-white">Sandesh Hegde</h4>
-              <p className="text-blue-600 dark:text-blue-400 font-medium text-sm mb-4">Lead Developer & Innovator</p>
-              <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">Built the core architecture, full-stack framework, and ML model connections for the hackathon.</p>
-              <div className="flex justify-center gap-4 text-gray-500">
-                <a href="https://github.com/Sandeshhegde10" target="_blank" rel="noopener noreferrer" className="hover:text-gray-900 dark:hover:text-white transition-colors">
-                  <Github className="w-5 h-5" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Section */}
       <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <Card className="bg-gradient-to-r from-green-600 to-blue-600 border-0 shadow-xl overflow-hidden relative">
@@ -167,8 +143,35 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-black/20 backdrop-blur mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-600 dark:text-gray-400">
-          <p>© 2024 AquaSync. Created by Sandesh Hegde for agricultural modernization.</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+              <h4 className="text-xl font-bold bg-gradient-to-r from-green-600 to-blue-600 dark:from-green-400 dark:to-blue-400 bg-clip-text text-transparent mb-4">
+                AquaSync
+              </h4>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Smart AI-powered irrigation optimization <br/> for modern agriculture.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Team HexaCore</h4>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                <li><strong className="text-gray-800 dark:text-gray-300">Email:</strong> team.hexacore@example.com</li>
+                <li><strong className="text-gray-800 dark:text-gray-300">Phone:</strong> +91 9482500151</li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Address</h4>
+              <address className="text-sm text-gray-600 dark:text-gray-400 not-italic">
+                Innovation Lab<br />
+                Bangalore, Karnataka<br />
+                India
+              </address>
+            </div>
+          </div>
+          <div className="border-t border-gray-200 dark:border-gray-800 mt-8 pt-8 text-center text-sm text-gray-500 dark:text-gray-500">
+            <p>© {new Date().getFullYear()} AquaSync by Team HexaCore. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
